@@ -1,6 +1,9 @@
 // DOM HUD + minimap port of map_view.gd: walls, rooms, open/closed doors,
 // cyan arrow = you (biggest marker), gold diamond = exit, legend inside panel.
 const $ = (id) => document.getElementById(id);
+export function mapArrowAngle(fwd) {
+  return Math.atan2(fwd.x, -fwd.z);
+}
 
 export class Hud {
   constructor() {
@@ -76,7 +79,7 @@ export class Hud {
     c.closePath(); c.fill();
     // player: big cyan arrow rotated to face look direction
     const pxp = (playerPos.x / 4) * sc, pyp = (playerPos.z / 4) * sc;
-    const ang = Math.atan2(fwd.x, -fwd.z); // map: +x right, +z down
+    const ang = mapArrowAngle(fwd); // map: +x right, +z down
     c.save(); c.translate(pxp, pyp); c.rotate(ang);
     c.fillStyle = "#2ee6ff";
     c.beginPath(); c.moveTo(0, -8); c.lineTo(6, 7); c.lineTo(0, 3.5); c.lineTo(-6, 7);

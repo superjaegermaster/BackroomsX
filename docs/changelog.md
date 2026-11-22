@@ -44,6 +44,13 @@ with three.js + modern post-processing. Deterministic, seeded, offline
   for both door orientations, opening span, open-door passage and the former
   full-cell false-positive. `COLLISION TESTS: PASS`.
 
+## JS-M17 — Minimap heading fix
+- Fixed a type mismatch where `main.js` passed a scalar yaw into `Hud.drawMap`,
+  which expected a forward vector. `fwd.x`/`fwd.z` were therefore undefined,
+  producing `NaN` rotation and a pointer that never turned.
+- `drawMap` now receives the normalized camera forward vector every frame.
+- Added `tests/test_map_arrow.mjs` covering north/east/south/west headings.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat

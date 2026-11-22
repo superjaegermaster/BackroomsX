@@ -255,15 +255,15 @@ function tick() {
   }
 
   vhs.uniforms.time.value = sessionT;
-  hud.drawMap(layout, world, player.pos, getYaw());
+  hud.drawMap(layout, world, player.pos, getForward());
   hud.setPos(player.pos, layout, world);
 
   if (fxOn || true) composer.render();
   void renderer;
 }
-function getYaw() {
+function getForward() {
   const d = new THREE.Vector3(); camera.getWorldDirection(d);
-  return Math.atan2(d.x, d.z) + Math.PI; // face dir -> compass-ish for map arrow
+  d.y = 0; return d.normalize();
 }
 
 addEventListener("resize", () => {

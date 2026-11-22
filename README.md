@@ -64,6 +64,7 @@ browser console.
 ```bash
 node tests/test_layout.mjs
 node tests/test_collision.mjs
+node tests/test_map_arrow.mjs
 ```
 
 The tests check determinism, borders, connectivity, wall-flush doors, exit
