@@ -1,0 +1,14 @@
+# OS/editor/runtime noise
+.DS_Store
+node_modules/
+*.log
+
+# Local browser/server artifacts
+.cache/
+.tmp/
+
+# Source reference video/audio analysis stays local and is not part of the game
+v_android.mp4
+montage60.png
+spec60.png
+f_*.jpg
