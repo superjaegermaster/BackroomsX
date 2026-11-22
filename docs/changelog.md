@@ -24,7 +24,15 @@ with three.js + modern post-processing. Deterministic, seeded, offline
   dips, amber bias); raw scene too dark → lighting tune (PL_INT 22, denser
   panels, exposure 1.35); grade tune (amber mix 0.62, tint, black lift).
 
-## JS-M14 — Found-footage ambience from owner reference video
+## JS-M15 — BackroomsX identity + start menu
+- Renamed the browser title and start screen to **BackroomsX**.
+- Added a compact found-footage start menu with a BX logo mark, wordmark,
+  level identifier, one primary `ENTER LEVEL 0` button and condensed controls.
+- Added scanline texture, amber/black menu card, red recording accent and
+  keyboard-focus/hover states; respects reduced-motion preferences.
+- Start interaction is now bound to the explicit button rather than the whole
+  overlay, while preserving pointer lock and audio activation.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat

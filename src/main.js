@@ -37,10 +37,12 @@ const { composer, bloom, vhs } = makeComposer(renderer, scene, camera);
 
 const controls = new PointerLockControls(camera, renderer.domElement);
 const startEl = document.getElementById("start");
-startEl.addEventListener("click", () => {
+const startBtn = document.getElementById("startBtn");
+startBtn.addEventListener("click", () => {
   audio.start();
   placeNeonFn && placeNeonFn();
   if (!music.started) { music.started = true; music.start(); }
+  startEl.style.display = "none";
   controls.lock();
 });
 controls.addEventListener("lock", () => { startEl.style.display = "none"; });
