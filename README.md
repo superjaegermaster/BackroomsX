@@ -6,6 +6,15 @@ This is the browser redevelopment of the original macOS Godot prototype. It uses
 vendored three.js modules and procedural textures/audio so the game can run
 without an npm install or runtime CDN dependency.
 
+## Play in your browser
+
+**[Launch BackroomsX](https://superjaegermaster.github.io/BackroomsX/)**
+
+The link runs the repository's `index.html` through GitHub Pages. The source is
+available at [`index.html`](https://github.com/superjaegermaster/BackroomsX/blob/main/index.html).
+If Pages has not been enabled yet for the repository, use the local HTTP command
+below; opening the file with `file://` will not work because the game uses ES modules.
+
 ## Run locally
 
 From this directory:
