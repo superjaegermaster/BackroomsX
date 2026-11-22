@@ -33,6 +33,17 @@ with three.js + modern post-processing. Deterministic, seeded, offline
 - Start interaction is now bound to the explicit button rather than the whole
   overlay, while preserving pointer lock and audio activation.
 
+## JS-M16 — Door collision alignment
+- Removed the full 4m room-side cell blocker previously added for every closed
+  door. It could feel like an invisible wall several metres away from the
+  rendered doorway.
+- Closed doors now collide against a thin plane matching the visible door
+  opening; open doors are immediately passable. Solid maze cells retain their
+  full-cell collision.
+- Added `src/collision.js` and `tests/test_collision.mjs` regression coverage
+  for both door orientations, opening span, open-door passage and the former
+  full-cell false-positive. `COLLISION TESTS: PASS`.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat

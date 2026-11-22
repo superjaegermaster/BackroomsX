@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import { LevelLayout } from "./layout.js";
-import { World, CELL, WALL_H } from "./world.js";
+import { World, CELL, WALL_H, doorPlaneCollision } from "./world.js";
 import { makeComposer } from "./post.js";
 import { AudioBed, Music } from "./audio.js";
 import { Hud } from "./hud.js";
@@ -147,6 +147,10 @@ addEventListener("keyup", (e) => keys.delete(e.code));
 // ---------------- movement + collision ----------------
 function collide(px, pz) {
   const r = 0.34;
+  // Closed doors are thin blockers at the rendered door plane. Previously the
+  // entire room-side 4m cell was marked blocked, creating invisible walls well
+  // away from the visible door. Solid maze cells remain full-cell blockers.
+  if (world.doors.some((d) => doorPlaneCollision(d, px, pz, r))) return true;
   for (let cy = Math.floor((pz - r) / CELL); cy <= Math.floor((pz + r) / CELL); cy++)
     for (let cx = Math.floor((px - r) / CELL); cx <= Math.floor((px + r) / CELL); cx++)
       if (world.blocked.has(cx + "," + cy)) {
@@ -280,6 +284,7 @@ window.BR = {
     rooms: layout.rooms.size, zones: world.zones.size, posters: world.posterCount || 0,
     pos: [+player.pos.x.toFixed(2), +player.pos.y.toFixed(2), +player.pos.z.toFixed(2)],
     open: world.doors.filter((d) => d.open).length,
+    blockedDoorCells: world.doors.filter((d) => world.blocked.has(d.cellKey)).length,
     exit: world.exitPos.toArray().map((v) => +v.toFixed(1)),
     setPos: (x, z, yaw) => { player.pos.x = x; player.pos.z = z;
       if (yaw !== undefined) camera.rotation.set(0, yaw, 0); },

@@ -1,10 +1,8 @@
 # BackroomsX
 
-A deterministic first-person Backrooms maze built for the browser with three.js.
-
-This is the browser redevelopment of the original macOS Godot prototype. It uses
-vendored three.js modules and procedural textures/audio so the game can run
-without an npm install or runtime CDN dependency.
+This is a deterministic first-person liminal maze built for the browser with
+three.js. It uses vendored three.js modules and procedural textures/audio so the
+game can run without an npm install or runtime CDN dependency.
 
 ## Play in your browser
 
@@ -65,10 +63,11 @@ browser console.
 
 ```bash
 node tests/test_layout.mjs
+node tests/test_collision.mjs
 ```
 
-The test suite checks determinism, borders, connectivity, wall-flush doors and
-exit reachability across multiple seeds.
+The tests check determinism, borders, connectivity, wall-flush doors, exit
+reachability and door collision alignment across multiple seeds.
 
 ## Project layout
 

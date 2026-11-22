@@ -5,7 +5,8 @@ import * as THREE from "three";
 import { wallTexture, carpetTexture, ceilingTexture, doorTexture, signTexture, posterTexture, DOOR_STYLES } from "./textures.js";
 import { makeRng } from "./prng.js";
 
-export const CELL = 4.0;
+import { CELL, doorPlaneCollision } from "./collision.js";
+export { CELL, doorPlaneCollision };
 export const WALL_H = 3.4;
 export const ZONE_CELLS = 14;
 
@@ -245,7 +246,9 @@ export class World {
         center: new THREE.Vector3(cx, 1.5, cz), style, horiz,
       };
       this.doors.push(dd);
-      this.blocked.add(dd.cellKey); // closed door blocks its doorway cell
+      // Door collision is handled at the rendered plane in main.js. Do not
+      // block the entire room-side cell: that produced the reported invisible
+      // walls several metres away from a closed door.
     }
   }
   openDoor(d, audio) {
