@@ -82,6 +82,19 @@ with three.js + modern post-processing. Deterministic, seeded, offline
 - Browser QA: seed `20261110` renders with 16 rooms, 15 doors and 8 furniture
   groups, zero JavaScript errors.
 
+## JS-M20 — Carpet and surface detail pass
+- Increased wallpaper motif scale/contrast with repeating embossed marks, faded
+  roll seams, age variation and a small bump response so walls read as textured
+  yellow-green vinyl instead of flat color.
+- Added visible directional carpet tufts and fiber strokes, darker pile variation
+  and a carpet bump map so the floor reads as commercial carpet in the VHS pass.
+- Added physical ceiling T-bars through instanced geometry in every open cell,
+  matching the reference drop-ceiling construction in addition to the tile grid
+  texture.
+- Added material bump response for walls, carpet and acoustic ceiling tiles.
+- Browser QA after a cache-cleared reload: room view shows the ceiling grid,
+  carpet surface and furniture with zero JavaScript errors.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat

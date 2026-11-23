@@ -74,7 +74,7 @@ export class World {
     g.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
     g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
     const mk = (t, kind = "wall") => {
-      const opts = { map: t, roughness: 0.95, metalness: 0.02 };
+      const opts = { map: t, roughness: 0.95, metalness: 0.02, bumpMap: t, bumpScale: kind === "floor" ? 0.07 : 0.025 };
       if (kind === "ceil") { opts.emissive = 0x65634f; opts.emissiveIntensity = 0.34; }
       if (kind === "floor") { opts.emissive = 0x302715; opts.emissiveIntensity = 0.12; }
       return new THREE.MeshStandardMaterial(opts);
@@ -127,7 +127,9 @@ export class World {
 
   _buildWallBoxes() {
     const L = this.layout, C = CELL, H = WALL_H;
-    const mat = new THREE.MeshStandardMaterial({ map: wallTexture(), roughness: 0.95, metalness: 0.01 });
+    const wt = wallTexture();
+    const mat = new THREE.MeshStandardMaterial({
+      map: wt, bumpMap: wt, bumpScale: 0.025, roughness: 0.95, metalness: 0.01 });
     const thickness = 0.22;
     const add = (x, z, sx, sz) => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(sx, H, sz), mat);
@@ -164,6 +166,25 @@ export class World {
       m.position.set((cx + 0.5) * C, WALL_H - 0.03, (cy + 0.5) * C);
       this.group.add(m);
     }
+    // Physical T-bar strips make the drop ceiling readable even when the
+    // procedural texture is viewed through VHS grain/fog.
+    const openCells = [];
+    for (let cy = 1; cy < L.maze.height - 1; cy++) for (let cx = 1; cx < L.maze.width - 1; cx++)
+      if (!L.isSolid(cx, cy)) openCells.push([cx, cy]);
+    const barMat = new THREE.MeshStandardMaterial({
+      color: 0x777766, emissive: 0x262719, emissiveIntensity: 0.2,
+      roughness: 0.82, metalness: 0.15 });
+    const barGeoX = new THREE.BoxGeometry(0.045, 0.045, C);
+    const barGeoZ = new THREE.BoxGeometry(C, 0.045, 0.045);
+    const barsX = new THREE.InstancedMesh(barGeoX, barMat, openCells.length);
+    const barsZ = new THREE.InstancedMesh(barGeoZ, barMat, openCells.length);
+    const tm = new THREE.Matrix4();
+    openCells.forEach(([cx, cy], i) => {
+      tm.makeTranslation((cx + 0.5) * C, WALL_H + 0.015, (cy + 0.5) * C); barsX.setMatrixAt(i, tm);
+      tm.makeTranslation((cx + 0.5) * C, WALL_H + 0.02, (cy + 0.5) * C); barsZ.setMatrixAt(i, tm);
+    });
+    barsX.instanceMatrix.needsUpdate = true; barsZ.instanceMatrix.needsUpdate = true;
+    this.group.add(barsX, barsZ);
     this.lightPanels = pts.map(([cx, cy]) => new THREE.Vector3((cx + 0.5) * C, WALL_H - 0.3, (cy + 0.5) * C));
     for (let i = 0; i < 6; i++) {
       const pl = new THREE.PointLight(0xfff0c4, PL_INT, 23, 1.45);

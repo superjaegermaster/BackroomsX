@@ -37,15 +37,19 @@ export function wallTexture() {
   // Reference: pale yellow-green vinyl wallpaper, low contrast and matte.
   x.fillStyle = "#c7c68c"; x.fillRect(0, 0, s, s);
   // Tiny repeating stipple / embossed wallpaper motif.
-  for (let yy = 0; yy < s; yy += 28) for (let xx = 0; xx < s; xx += 28) {
-    x.fillStyle = "rgba(90,99,49,0.10)";
-    x.beginPath(); x.arc(xx + 7, yy + 9, 1.1, 0, 7); x.fill();
-    x.strokeStyle = "rgba(245,239,176,0.16)"; x.lineWidth = 1;
-    x.beginPath(); x.moveTo(xx + 13, yy + 3); x.lineTo(xx + 18, yy + 25); x.stroke();
+  for (let yy = 0; yy < s; yy += 24) for (let xx = 0; xx < s; xx += 24) {
+    const ox = (Math.floor(yy / 24) & 1) * 12;
+    x.fillStyle = "rgba(70,78,39,0.15)";
+    x.beginPath(); x.arc(xx + ox + 6, yy + 8, 1.25, 0, 7); x.fill();
+    x.strokeStyle = "rgba(247,241,177,0.22)"; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(xx + ox + 11, yy + 3); x.lineTo(xx + ox + 16, yy + 20); x.stroke();
+    x.strokeStyle = "rgba(92,92,45,0.10)";
+    x.beginPath(); x.moveTo(xx + ox + 2, yy + 20); x.lineTo(xx + ox + 8, yy + 4); x.stroke();
   }
-  // Very subdued vertical seams and age variation.
-  for (let i = 0; i < s; i += 256) {
-    x.fillStyle = "rgba(85,88,40,0.055)"; x.fillRect(i, 0, 2, s);
+  // Broad faded wallpaper rolls: detail should remain readable at distance.
+  for (let i = 0; i < s; i += 192) {
+    x.fillStyle = "rgba(88,91,43,0.08)"; x.fillRect(i, 0, 3, s);
+    x.fillStyle = "rgba(248,239,166,0.07)"; x.fillRect(i + 94, 0, 2, s);
   }
   noise(x, s, 12, 0.8);
   blobs(x, s, 14, (a) => `rgba(75,78,30,${a * 0.45})`, 40, 180);
@@ -61,10 +65,19 @@ export function carpetTexture() {
   x.fillStyle = "#948363"; x.fillRect(0, 0, s, s);
   let seed = 777;
   const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
-  for (let i = 0; i < 120000; i++) {
+  // Carpet yarn: directional micro-tufts plus sparse darker fibers. The larger
+  // strokes survive distance downsampling better than pure pixel noise.
+  for (let i = 0; i < 18000; i++) {
+    const px = rnd() * s, py = rnd() * s, len = 2 + rnd() * 5;
+    x.strokeStyle = rnd() > 0.52 ? "rgba(226,205,150,0.13)" : "rgba(39,33,22,0.13)";
+    x.lineWidth = 1;
+    x.beginPath(); x.moveTo(px, py); x.lineTo(px + len, py + (rnd() - 0.5) * 1.5); x.stroke();
+  }
+  // Fine fiber noise.
+  for (let i = 0; i < 95000; i++) {
     const px = rnd() * s, py = rnd() * s, v = rnd() - 0.5;
-    x.fillStyle = v > 0 ? "rgba(231,215,164,0.045)" : "rgba(45,39,26,0.055)";
-    x.fillRect(px, py, 1.3, 1.3);
+    x.fillStyle = v > 0 ? "rgba(231,215,164,0.06)" : "rgba(45,39,26,0.075)";
+    x.fillRect(px, py, 1.2, 1.2);
   }
   blobs(x, s, 12, (a) => `rgba(49,42,25,${a * 0.45})`, 60, 260);
   noise(x, s, 10, 0.8);
