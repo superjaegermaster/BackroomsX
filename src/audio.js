@@ -24,37 +24,9 @@ export class AudioBed {
     const lg = ctx.createGain(); lg.gain.value = 0.018;
     lfo.connect(lg); lg.connect(humMix.gain); lfo.start();
 
-    // --- tape hiss ---
-    const hissBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const hd = hissBuf.getChannelData(0);
-    for (let i = 0; i < hd.length; i++) hd[i] = (Math.random() * 2 - 1) * 0.05;
-    const hiss = ctx.createBufferSource(); hiss.buffer = hissBuf; hiss.loop = true;
-    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 6000;
-    hiss.connect(lp); lp.connect(master); hiss.start();
+    // VHS tape hiss and the brown room-noise layer are intentionally absent.
+    // Keep only the quiet fluorescent ballast hum plus spatial neon buzz.
     this.humMix = humMix;
-    this._hissFilter = lp;
-
-    // --- stale-air room tone (owner video ref: flat low-mid bed, no transients,
-    //     no 60 Hz line peak — the eeriness IS the unchanging rumble) ---
-    const rtBuf = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
-    const rd = rtBuf.getChannelData(0);
-    let brown = 0;
-    let rs = 24601;
-    const rrnd = () => (rs = (rs * 1664525 + 1013904223) >>> 0) / 4294967296;
-    for (let i = 0; i < rd.length; i++) {
-      brown = (brown + (rrnd() * 2 - 1) * 0.02) * 0.996;   // brownish noise
-      rd[i] = brown * 6 + (rrnd() * 2 - 1) * 0.012;        // + whisper of air
-    }
-    const rt = ctx.createBufferSource(); rt.buffer = rtBuf; rt.loop = true;
-    const rtHp = ctx.createBiquadFilter(); rtHp.type = "highpass"; rtHp.frequency.value = 40;
-    const rtLp = ctx.createBiquadFilter(); rtLp.type = "lowpass"; rtLp.frequency.value = 380;
-    const rtG = ctx.createGain(); rtG.gain.value = 0.16;
-    // very slow swell, ~47 s cycle — near-subliminal
-    const rtLfo = ctx.createOscillator(); rtLfo.frequency.value = 1 / 47;
-    const rtLg = ctx.createGain(); rtLg.gain.value = 0.04;
-    rtLfo.connect(rtLg); rtLg.connect(rtG.gain); rtLfo.start();
-    rt.connect(rtHp); rtHp.connect(rtLp); rtLp.connect(rtG); rtG.connect(master);
-    rt.start();
 
     // --- neon buzz buffer (120 Hz stack + fizz + crackle) ---
     this.neonBuf = this._makeNeonBuffer(ctx);
@@ -187,5 +159,28 @@ export class Music {
       if (k < 1) this._fade = requestAnimationFrame(step);
     };
     step();
+  }
+}
+
+export class MysteryMusic {
+  constructor() { this.started = false; this.nodes = []; }
+  start(bed) {
+    if (this.started || !bed?.ctx) return;
+    this.started = true;
+    const ctx = bed.ctx, out = ctx.createGain(); out.gain.value = 0.12;
+    const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 420; filter.Q.value = 0.7;
+    out.connect(filter); filter.connect(bed.master);
+    // Slow, unresolved minor intervals: mysterious without becoming melodic.
+    for (const [freq, gain, detune] of [[55, 0.32, -4], [82.41, 0.18, 3], [110, 0.13, -2], [146.83, 0.07, 5]]) {
+      const o = ctx.createOscillator(); o.type = "sine"; o.frequency.value = freq; o.detune.value = detune;
+      const g = ctx.createGain(); g.gain.value = gain;
+      o.connect(g); g.connect(out); o.start(); this.nodes.push(o);
+    }
+    const lfo = ctx.createOscillator(); lfo.type = "sine"; lfo.frequency.value = 0.035;
+    const lg = ctx.createGain(); lg.gain.value = 0.045;
+    lfo.connect(lg); lg.connect(out.gain); lfo.start(); this.nodes.push(lfo);
+    const drift = ctx.createOscillator(); drift.type = "sine"; drift.frequency.value = 0.011;
+    const dg = ctx.createGain(); dg.gain.value = 36;
+    drift.connect(dg); dg.connect(filter.frequency); drift.start(); this.nodes.push(drift);
   }
 }

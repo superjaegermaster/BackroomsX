@@ -5,7 +5,7 @@ import { PointerLockControls } from "three/addons/controls/PointerLockControls.j
 import { LevelLayout } from "./layout.js";
 import { World, CELL, WALL_H, doorPlaneCollision } from "./world.js";
 import { makeComposer } from "./post.js";
-import { AudioBed, Music } from "./audio.js";
+import { AudioBed, MysteryMusic } from "./audio.js";
 import { Hud } from "./hud.js";
 import { makeRng } from "./prng.js";
 
@@ -16,8 +16,7 @@ let fxOn = params.get("fx") !== "0";
 const app = document.getElementById("app");
 const hud = new Hud();
 const audio = new AudioBed();
-const music = new Music(["./assets/audio/long_note_four.mp3",
-  "./assets/audio/long_note_two.mp3", "./assets/audio/slow_burn.mp3"]);
+const music = new MysteryMusic();
 
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -41,7 +40,7 @@ const startBtn = document.getElementById("startBtn");
 startBtn.addEventListener("click", () => {
   audio.start();
   placeNeonFn && placeNeonFn();
-  if (!music.started) { music.started = true; music.start(); }
+  music.start(audio);
   startEl.style.display = "none";
   controls.lock();
 });
@@ -124,7 +123,7 @@ function newMaze(emergeCell) {
   hud.fadeTo(1, 280);
   setTimeout(() => {
     buildLevel(seed + 1, emergeCell);
-    if (Math.random() < 0.5) music.start();
+    if (Math.random() < 0.5) music.start(audio);
     hud.fadeTo(0, 420);
     setTimeout(() => { transitioning = false; }, 300);
   }, 300);
@@ -132,7 +131,7 @@ function newMaze(emergeCell) {
 
 // ---------------- input ----------------
 addEventListener("keydown", (e) => {
-  if (e.code === "KeyR" && !transitioning) { hud.fadeTo(1, 200); setTimeout(() => { buildLevel(seed + 1); music.start(); hud.fadeTo(0, 400); }, 220); return; }
+  if (e.code === "KeyR" && !transitioning) { hud.fadeTo(1, 200); setTimeout(() => { buildLevel(seed + 1); music.start(audio); hud.fadeTo(0, 400); }, 220); return; }
   if (e.code === "KeyM") hud.mapOn = !hud.mapOn, hud.mapEl.style.display = hud.mapOn ? "" : "none";
   if (e.code === "KeyV") {
     fxOn = !fxOn;

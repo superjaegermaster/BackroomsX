@@ -106,6 +106,15 @@ with three.js + modern post-processing. Deterministic, seeded, offline
 - Browser verification at seed `20261110`: distant ceiling grid, wallpaper
   structure, carpet variation and furniture remain visible; zero JS errors.
 
+## JS-M22 — Quiet VHS bed and mysterious music
+- Removed the tape hiss and synthetic brown room-noise layer from `AudioBed`;
+  fluorescent ballast hum and spatial neon buzz remain.
+- Replaced the rotating external music tracks with a procedural mysterious
+  drone: slow unresolved minor intervals, filtered sine layers, subtle gain
+  breathing and very slow filter drift.
+- Browser boot verification: zero JavaScript errors; seeded world diagnostics
+  remain intact.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat
