@@ -35,7 +35,9 @@ function tex(canvas, repeat = 1) {
 export function wallTexture() {
   const s = 1024, c = cv(s), x = c.getContext("2d");
   // Reference: pale yellow-green vinyl wallpaper, low contrast and matte.
-  x.fillStyle = "#c7c68c"; x.fillRect(0, 0, s, s);
+  // Return to the classic warmer mustard-yellow Backrooms tone, while keeping
+  // the clean unlit wallpaper surface.
+  x.fillStyle = "#b9ad68"; x.fillRect(0, 0, s, s);
   // Tiny repeating stipple / embossed wallpaper motif.
   for (let yy = 0; yy < s; yy += 24) for (let xx = 0; xx < s; xx += 24) {
     const ox = (Math.floor(yy / 24) & 1) * 12;
