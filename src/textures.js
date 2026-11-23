@@ -46,6 +46,20 @@ export function wallTexture() {
     x.strokeStyle = "rgba(92,92,45,0.10)";
     x.beginPath(); x.moveTo(xx + ox + 2, yy + 20); x.lineTo(xx + ox + 8, yy + 4); x.stroke();
   }
+  // The reference wallpaper has a repeated diamond/lozenge print. Keep the
+  // geometry small but give the olive outline enough contrast to survive fog.
+  for (let yy = -48; yy < s + 48; yy += 96) for (let xx = -48; xx < s + 48; xx += 96) {
+    const ox = (Math.floor((yy + 48) / 96) & 1) * 48;
+    x.strokeStyle = "rgba(62,66,29,0.22)"; x.lineWidth = 2.2;
+    x.beginPath();
+    x.moveTo(xx + ox + 48, yy + 8);
+    x.lineTo(xx + ox + 88, yy + 48);
+    x.lineTo(xx + ox + 48, yy + 88);
+    x.lineTo(xx + ox + 8, yy + 48);
+    x.closePath(); x.stroke();
+    x.fillStyle = "rgba(83,84,35,0.12)";
+    x.beginPath(); x.arc(xx + ox + 48, yy + 48, 3.2, 0, 7); x.fill();
+  }
   // Broad faded wallpaper rolls: detail should remain readable at distance.
   for (let i = 0; i < s; i += 192) {
     x.fillStyle = "rgba(88,91,43,0.08)"; x.fillRect(i, 0, 3, s);
