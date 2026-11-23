@@ -33,9 +33,9 @@ export const VHSShader = {
       c.r = texture2D(tDiffuse, uv + d * ca).r;
       c.g = texture2D(tDiffuse, uv).g;
       c.b = texture2D(tDiffuse, uv - d * ca).b;
-      // amber monochrome push
+      // pale yellow-green fluorescent grade (reference), not orange sepia
       float luma = dot(c, vec3(0.30, 0.59, 0.11));
-      c = mix(c, vec3(1.14, 0.95, 0.50) * luma, 0.62 * amount);
+      c = mix(c, vec3(1.08, 1.05, 0.68) * luma, 0.44 * amount);
       // vignette
       c *= mix(1.0, smoothstep(0.95, 0.35, length(d) * 1.42), 0.5 * amount);
       // scanlines every ~3 px

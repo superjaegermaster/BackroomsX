@@ -34,54 +34,59 @@ function tex(canvas, repeat = 1) {
 
 export function wallTexture() {
   const s = 1024, c = cv(s), x = c.getContext("2d");
-  x.fillStyle = "#cbb867"; x.fillRect(0, 0, s, s);
-  // faint vertical damask stripes
-  for (let i = 0; i < s; i += 64) {
-    x.fillStyle = "rgba(120,100,30,0.10)"; x.fillRect(i, 0, 2, s);
-    x.fillStyle = "rgba(255,240,170,0.07)"; x.fillRect(i + 32, 0, 1, s);
+  // Reference: pale yellow-green vinyl wallpaper, low contrast and matte.
+  x.fillStyle = "#c7c68c"; x.fillRect(0, 0, s, s);
+  // Tiny repeating stipple / embossed wallpaper motif.
+  for (let yy = 0; yy < s; yy += 28) for (let xx = 0; xx < s; xx += 28) {
+    x.fillStyle = "rgba(90,99,49,0.10)";
+    x.beginPath(); x.arc(xx + 7, yy + 9, 1.1, 0, 7); x.fill();
+    x.strokeStyle = "rgba(245,239,176,0.16)"; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(xx + 13, yy + 3); x.lineTo(xx + 18, yy + 25); x.stroke();
   }
-  // subtle repeating dot pattern
-  x.fillStyle = "rgba(150,130,50,0.08)";
-  for (let yy = 0; yy < s; yy += 16) for (let xx = (yy / 16) % 2 ? 8 : 0; xx < s; xx += 16) {
-    x.beginPath(); x.arc(xx, yy, 1.2, 0, 7); x.fill();
+  // Very subdued vertical seams and age variation.
+  for (let i = 0; i < s; i += 256) {
+    x.fillStyle = "rgba(85,88,40,0.055)"; x.fillRect(i, 0, 2, s);
   }
-  noise(x, s, 26, 0.6);
-  blobs(x, s, 26, (a) => `rgba(90,72,20,${a})`, 30, 160);   // age stains
-  const g = x.createLinearGradient(0, s * 0.82, 0, s);       // kick scuff line
-  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(50,40,10,0.5)");
+  noise(x, s, 12, 0.8);
+  blobs(x, s, 14, (a) => `rgba(75,78,30,${a * 0.45})`, 40, 180);
+  const g = x.createLinearGradient(0, s * 0.82, 0, s);
+  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(45,42,17,0.22)");
   x.fillStyle = g; x.fillRect(0, s * 0.82, s, s * 0.18);
   return tex(c);
 }
 
 export function carpetTexture() {
   const s = 1024, c = cv(s), x = c.getContext("2d");
-  x.fillStyle = "#bfa94f"; x.fillRect(0, 0, s, s);
-  // fiber noise
+  // Reference: broad, dark beige commercial carpet, matte and almost patternless.
+  x.fillStyle = "#948363"; x.fillRect(0, 0, s, s);
   let seed = 777;
   const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
-  for (let i = 0; i < 90000; i++) {
-    const px = rnd() * s, py = rnd() * s, v = (rnd() - 0.5);
-    x.fillStyle = v > 0 ? "rgba(255,240,170,0.05)" : "rgba(70,55,10,0.06)";
-    x.fillRect(px, py, 1.5, 1);
+  for (let i = 0; i < 120000; i++) {
+    const px = rnd() * s, py = rnd() * s, v = rnd() - 0.5;
+    x.fillStyle = v > 0 ? "rgba(231,215,164,0.045)" : "rgba(45,39,26,0.055)";
+    x.fillRect(px, py, 1.3, 1.3);
   }
-  blobs(x, s, 18, (a) => `rgba(60,48,12,${a})`, 40, 220);    // damp traffic lanes
-  noise(x, s, 18, 0.5);
+  blobs(x, s, 12, (a) => `rgba(49,42,25,${a * 0.45})`, 60, 260);
+  noise(x, s, 10, 0.8);
   return tex(c);
 }
 
 export function ceilingTexture() {
   const s = 1024, c = cv(s), x = c.getContext("2d");
-  x.fillStyle = "#d6d2c4"; x.fillRect(0, 0, s, s);
-  noise(x, s, 14, 0.3);
-  x.strokeStyle = "rgba(70,66,52,0.55)"; x.lineWidth = 5;      // T-bar grid
-  x.strokeRect(2, 2, s - 4, s - 4);
-  x.beginPath(); x.moveTo(s / 2, 0); x.lineTo(s / 2, s); x.moveTo(0, s / 2); x.lineTo(s, s / 2); x.stroke();
-  x.strokeStyle = "rgba(70,66,52,0.16)"; x.lineWidth = 1;      // tile speckle cells
-  for (let i = 1; i < 8; i++) {
-    x.beginPath(); x.moveTo(i * s / 8, 0); x.lineTo(i * s / 8, s); x.stroke();
-    x.beginPath(); x.moveTo(0, i * s / 8); x.lineTo(s, i * s / 8); x.stroke();
+  // Reference: stained acoustic drop-ceiling tiles with narrow T-bars.
+  x.fillStyle = "#b8b89f"; x.fillRect(0, 0, s, s);
+  noise(x, s, 10, 0.5);
+  x.strokeStyle = "rgba(67,70,54,0.34)"; x.lineWidth = 4;
+  for (let i = 0; i <= 4; i++) {
+    const p = i * s / 4;
+    x.beginPath(); x.moveTo(p, 0); x.lineTo(p, s); x.moveTo(0, p); x.lineTo(s, p); x.stroke();
   }
-  blobs(x, s, 8, (a) => `rgba(90,80,40,${a})`, 30, 120);       // water rings
+  x.strokeStyle = "rgba(245,240,196,0.12)"; x.lineWidth = 2;
+  for (let i = 0; i <= 4; i++) {
+    const p = i * s / 4 + 7;
+    x.beginPath(); x.moveTo(p, 0); x.lineTo(p, s); x.moveTo(0, p); x.lineTo(s, p); x.stroke();
+  }
+  blobs(x, s, 12, (a) => `rgba(74,70,43,${a * 0.5})`, 35, 140);
   return tex(c);
 }
 

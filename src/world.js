@@ -73,7 +73,12 @@ export class World {
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
     g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
-    const mk = (t) => new THREE.MeshStandardMaterial({ map: t, roughness: 0.95, metalness: 0.02 });
+    const mk = (t, kind = "wall") => {
+      const opts = { map: t, roughness: 0.95, metalness: 0.02 };
+      if (kind === "ceil") { opts.emissive = 0x65634f; opts.emissiveIntensity = 0.34; }
+      if (kind === "floor") { opts.emissive = 0x302715; opts.emissiveIntensity = 0.12; }
+      return new THREE.MeshStandardMaterial(opts);
+    };
     // walls, floor, ceiling: split by material via groups is overkill — three meshes
     const walls = new THREE.BufferGeometry();
     const nq = pos.length / 9;
@@ -97,12 +102,12 @@ export class World {
       }
       q++;
     }
-    const build = (s, t) => {
+    const build = (s, t, kind = "wall") => {
       const bg = new THREE.BufferGeometry();
       bg.setAttribute("position", new THREE.Float32BufferAttribute(s.p, 3));
       bg.setAttribute("normal", new THREE.Float32BufferAttribute(s.n, 3));
       bg.setAttribute("uv", new THREE.Float32BufferAttribute(s.u, 2));
-      const m = new THREE.Mesh(bg, mk(t));
+      const m = new THREE.Mesh(bg, mk(t, kind));
       m.matrixAutoUpdate = false;
       this.group.add(m);
     };
@@ -110,8 +115,8 @@ export class World {
     // planes. This restores visible wall thickness and prevents the triangular
     // paper-thin look at oblique camera angles.
     this._buildWallBoxes();
-    build(split.floor, carpetTexture());
-    build(split.ceil, ceilingTexture());
+    build(split.floor, carpetTexture(), "floor");
+    build(split.ceil, ceilingTexture(), "ceil");
     void g; void setSub;
 
     // movement blockers: all solid cells
@@ -143,7 +148,7 @@ export class World {
   _buildLights() {
     const L = this.layout, C = CELL;
     const panelMat = new THREE.MeshStandardMaterial({
-      color: 0x1a1a12, emissive: 0xfff1c4, emissiveIntensity: 1.7, roughness: 1 });
+      color: 0xede9cf, emissive: 0xfff5ce, emissiveIntensity: 2.4, roughness: 0.92 });
     const panelGeo = new THREE.PlaneGeometry(2.2, 0.7);
     const pts = [];
     for (let cy = 1; cy < L.maze.height - 1; cy++) for (let cx = 1; cx < L.maze.width - 1; cx++) {
@@ -161,12 +166,12 @@ export class World {
     }
     this.lightPanels = pts.map(([cx, cy]) => new THREE.Vector3((cx + 0.5) * C, WALL_H - 0.3, (cy + 0.5) * C));
     for (let i = 0; i < 6; i++) {
-      const pl = new THREE.PointLight(0xffeccb, PL_INT, 19, 1.7);
+      const pl = new THREE.PointLight(0xfff0c4, PL_INT, 23, 1.45);
       pl.position.copy(this.lightPanels[0] ?? new THREE.Vector3());
       this.group.add(pl);
       this.lightPool.push(pl);
     }
-    this.hemi = new THREE.HemisphereLight(0xa8924a, 0x322a12, 0.5);
+    this.hemi = new THREE.HemisphereLight(0xbcc28a, 0x4b4329, 0.72);
     this.group.add(this.hemi);
   }
   updateLights(playerPos, t, dt, flickCb) {

@@ -27,8 +27,8 @@ renderer.toneMappingExposure = 1.35;
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x231c0c);
-scene.fog = new THREE.FogExp2(0x4a3d18, 0.06);   // milky haze (video ref)
+scene.background = new THREE.Color(0x403f27);
+scene.fog = new THREE.FogExp2(0x77764d, 0.042);   // soft green-yellow room haze
 const camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.05, 60);
 const EYE = 1.68;
 camera.position.set(2, EYE, 2);

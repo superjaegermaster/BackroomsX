@@ -68,6 +68,20 @@ with three.js + modern post-processing. Deterministic, seeded, offline
 - Fixed HUD room count (`layout.rooms` is an array, not a Set); the HUD now
   reports the actual room total instead of `rooms undefined`.
 
+## JS-M19 — Reference Lobby materials and lighting
+- Adapted wallpaper to the reference's pale yellow-green, matte vinyl surface:
+  small embossed stipple, subtle vertical seams and restrained age variation.
+- Reworked the floor as broad dark-beige commercial carpet with fine fibers and
+  low reflectance instead of saturated yellow carpet.
+- Reworked the ceiling as stained acoustic drop-ceiling tiles with narrow
+  4x4 T-bar grid lines and soft tile variation.
+- Tuned fluorescent fixtures toward rectangular cool-white panels, expanded
+  point-light falloff, lifted ambient hemisphere fill and softened the green-
+  yellow haze so corners remain readable without losing the liminal mood.
+- Reduced the orange VHS grade toward the reference's pale yellow-green cast.
+- Browser QA: seed `20261110` renders with 16 rooms, 15 doors and 8 furniture
+  groups, zero JavaScript errors.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat
