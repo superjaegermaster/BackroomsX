@@ -41,6 +41,7 @@ startBtn.addEventListener("click", () => {
   audio.start();
   placeNeonFn && placeNeonFn();
   music.start(audio);
+  hud.setMusic(music.name);
   startEl.style.display = "none";
   controls.lock();
 });
@@ -132,6 +133,7 @@ function newMaze(emergeCell) {
 // ---------------- input ----------------
 addEventListener("keydown", (e) => {
   if (e.code === "KeyR" && !transitioning) { hud.fadeTo(1, 200); setTimeout(() => { buildLevel(seed + 1); music.start(audio); hud.fadeTo(0, 400); }, 220); return; }
+  if (e.code === "KeyN") { hud.setMusic(music.next(audio)); return; }
   if (e.code === "KeyM") hud.mapOn = !hud.mapOn, hud.mapEl.style.display = hud.mapOn ? "" : "none";
   if (e.code === "KeyV") {
     fxOn = !fxOn;

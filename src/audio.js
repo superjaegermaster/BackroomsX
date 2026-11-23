@@ -163,24 +163,48 @@ export class Music {
 }
 
 export class MysteryMusic {
-  constructor() { this.started = false; this.nodes = []; }
+  constructor() {
+    this.started = false; this.nodes = []; this.out = null; this.ctx = null; this.trackIndex = 0;
+    this.tracks = [
+      { name: "Yellow Static", freqs: [[55, 0.32, -4], [82.41, 0.18, 3], [110, 0.13, -2], [146.83, 0.07, 5]], cutoff: 420, breathe: 0.035, drift: 0.011 },
+      { name: "Empty Corridor", freqs: [[49, 0.34, -5], [73.42, 0.16, 2], [98, 0.11, -3], [130.81, 0.06, 4]], cutoff: 330, breathe: 0.023, drift: 0.008 },
+      { name: "No Exit", freqs: [[61.74, 0.27, -3], [92.5, 0.16, 4], [123.47, 0.12, -2], [164.81, 0.05, 6]], cutoff: 520, breathe: 0.047, drift: 0.014 },
+    ];
+  }
+  get name() { return this.tracks[this.trackIndex].name; }
   start(bed) {
-    if (this.started || !bed?.ctx) return;
-    this.started = true;
-    const ctx = bed.ctx, out = ctx.createGain(); out.gain.value = 0.12;
-    const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 420; filter.Q.value = 0.7;
+    if (this.started || !bed?.ctx) return this.name;
+    this.started = true; this.ctx = bed.ctx; this._spawn(bed, false); return this.name;
+  }
+  next(bed) {
+    if (!this.started) return this.start(bed);
+    this.trackIndex = (this.trackIndex + 1) % this.tracks.length;
+    this._stopCurrent(); this._spawn(bed, true); return this.name;
+  }
+  _stopCurrent() {
+    if (!this.out || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    this.out.gain.cancelScheduledValues(t); this.out.gain.setValueAtTime(this.out.gain.value, t);
+    this.out.gain.linearRampToValueAtTime(0.0001, t + 0.45);
+    const old = this.nodes.slice(); setTimeout(() => old.forEach((n) => { try { n.stop(); } catch (_) {} }), 520);
+    this.nodes = []; this.out = null;
+  }
+  _spawn(bed, crossfade) {
+    const ctx = bed.ctx, p = this.tracks[this.trackIndex];
+    const out = this.out = ctx.createGain(); out.gain.value = crossfade ? 0.0001 : 0.12;
+    const filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = p.cutoff; filter.Q.value = 0.7;
     out.connect(filter); filter.connect(bed.master);
-    // Slow, unresolved minor intervals: mysterious without becoming melodic.
-    for (const [freq, gain, detune] of [[55, 0.32, -4], [82.41, 0.18, 3], [110, 0.13, -2], [146.83, 0.07, 5]]) {
+    for (const [freq, gain, detune] of p.freqs) {
       const o = ctx.createOscillator(); o.type = "sine"; o.frequency.value = freq; o.detune.value = detune;
       const g = ctx.createGain(); g.gain.value = gain;
       o.connect(g); g.connect(out); o.start(); this.nodes.push(o);
     }
-    const lfo = ctx.createOscillator(); lfo.type = "sine"; lfo.frequency.value = 0.035;
+    const lfo = ctx.createOscillator(); lfo.type = "sine"; lfo.frequency.value = p.breathe;
     const lg = ctx.createGain(); lg.gain.value = 0.045;
     lfo.connect(lg); lg.connect(out.gain); lfo.start(); this.nodes.push(lfo);
-    const drift = ctx.createOscillator(); drift.type = "sine"; drift.frequency.value = 0.011;
+    const drift = ctx.createOscillator(); drift.type = "sine"; drift.frequency.value = p.drift;
     const dg = ctx.createGain(); dg.gain.value = 36;
     drift.connect(dg); dg.connect(filter.frequency); drift.start(); this.nodes.push(drift);
+    if (crossfade) out.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.55);
   }
 }

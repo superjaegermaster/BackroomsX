@@ -115,6 +115,12 @@ with three.js + modern post-processing. Deterministic, seeded, offline
 - Browser boot verification: zero JavaScript errors; seeded world diagnostics
   remain intact.
 
+## JS-M23 — Music track toggle
+- Added three procedural mysterious tracks: `Yellow Static`, `Empty Corridor`,
+  and `No Exit`, with short crossfades between them.
+- Press `N` during play to switch tracks; the active track name is displayed in
+  the lower-right HUD.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat

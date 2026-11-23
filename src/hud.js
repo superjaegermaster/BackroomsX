@@ -8,7 +8,7 @@ export function mapArrowAngle(fwd) {
 export class Hud {
   constructor() {
     this.info = $("info"); this.pos = $("pos"); this.rec = $("rec");
-    this.stamp = $("stamp");
+    this.stamp = $("stamp"); this.music = $("music");
     this.prompt = $("prompt"); this.win = $("win"); this.fade = $("fade");
     this.mapEl = $("map");
     this.canvas = document.createElement("canvas");
@@ -38,6 +38,9 @@ export class Hud {
   setStamp(seed) {
     // camcorder date stamp, bottom-right — found-footage framing
     this.stamp.textContent = `NOV.21.2026  ${String(6 + (seed % 12)).padStart(2, "0")}:${String(10 + (seed % 50)).padStart(2, "0")}  AM  SP ${seed % 100}`;
+  }
+  setMusic(name) {
+    this.music.textContent = `♪ ${name} · N next track`;
   }
   setPrompt(show, label = "[E] open the door") {
     this.prompt.style.display = show ? "block" : "none";
