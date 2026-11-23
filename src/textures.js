@@ -56,7 +56,7 @@ export function wallTexture() {
   const g = x.createLinearGradient(0, s * 0.82, 0, s);
   g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(45,42,17,0.22)");
   x.fillStyle = g; x.fillRect(0, s * 0.82, s, s * 0.18);
-  return tex(c);
+  return tex(c, 2);
 }
 
 export function carpetTexture() {
@@ -81,7 +81,7 @@ export function carpetTexture() {
   }
   blobs(x, s, 12, (a) => `rgba(49,42,25,${a * 0.45})`, 60, 260);
   noise(x, s, 10, 0.8);
-  return tex(c);
+  return tex(c, 2);
 }
 
 export function ceilingTexture() {

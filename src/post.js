@@ -39,10 +39,10 @@ export const VHSShader = {
       // vignette
       c *= mix(1.0, smoothstep(0.95, 0.35, length(d) * 1.42), 0.5 * amount);
       // scanlines every ~3 px
-      c *= 1.0 - 0.10 * amount * (0.5 + 0.5 * sin(uv.y * resolution.y * 1.05));
+      c *= 1.0 - 0.07 * amount * (0.5 + 0.5 * sin(uv.y * resolution.y * 1.05));
       // animated grain (24 fps)
       float g = hash(floor(uv * resolution) + floor(time * 24.0));
-      c += (g - 0.5) * 0.055 * amount;
+      c += (g - 0.5) * 0.035 * amount;
       // lifted tape blacks, slight green-cyan cast in shadows
       c = c * vec3(1.04, 1.02, 0.86) + vec3(0.020, 0.017, 0.006) * amount;
       // rare horizontal tape jitter line

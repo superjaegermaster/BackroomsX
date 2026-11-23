@@ -95,6 +95,17 @@ with three.js + modern post-processing. Deterministic, seeded, offline
 - Browser QA after a cache-cleared reload: room view shows the ceiling grid,
   carpet surface and furniture with zero JavaScript errors.
 
+## JS-M21 — Distance-readable surface detail
+- Doubled wallpaper and carpet texture tiling so pattern scale remains readable
+  beyond the immediate foreground instead of collapsing into a flat color.
+- Strengthened mid-scale wallpaper marks and directional carpet tufts while
+  retaining restrained movie-style contrast.
+- Added bump response to thick wall boxes and carpet at distance.
+- Reduced fog density and VHS scanline/grain strength slightly so the detailed
+  materials survive the found-footage treatment without losing the analog look.
+- Browser verification at seed `20261110`: distant ceiling grid, wallpaper
+  structure, carpet variation and furniture remain visible; zero JS errors.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat
