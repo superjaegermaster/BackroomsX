@@ -65,11 +65,8 @@ export function wallTexture() {
     x.fillStyle = "rgba(88,91,43,0.08)"; x.fillRect(i, 0, 3, s);
     x.fillStyle = "rgba(248,239,166,0.07)"; x.fillRect(i + 94, 0, 2, s);
   }
-  noise(x, s, 12, 0.8);
-  blobs(x, s, 14, (a) => `rgba(75,78,30,${a * 0.45})`, 40, 180);
-  const g = x.createLinearGradient(0, s * 0.82, 0, s);
-  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(45,42,17,0.22)");
-  x.fillStyle = g; x.fillRect(0, s * 0.82, s, s * 0.18);
+  // Keep the wallpaper clean: no dirt blobs or floor-level grime overlay.
+  noise(x, s, 7, 0.8);
   return tex(c, 2);
 }
 
