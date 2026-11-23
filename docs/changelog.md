@@ -51,6 +51,23 @@ with three.js + modern post-processing. Deterministic, seeded, offline
 - `drawMap` now receives the normalized camera forward vector every frame.
 - Added `tests/test_map_arrow.mjs` covering north/east/south/west headings.
 
+## JS-M18 — Solid walls, visible doors and furniture
+- Replaced single-sided wall planes with solid 0.22m-thick box segments around
+  every exposed maze wall. This removes the paper-thin/triangular wall look and
+  gives corridor corners real depth.
+- Corrected the non-horizontal hinged-door pivot: its hinge was offset to the
+  wrong side, leaving the leaf outside the doorway. Door leaves now span the
+  opening correctly and are pulled 8cm toward the corridor to avoid z-fighting
+  with the opaque backing.
+- Door backings now use the selected procedural door texture, with readable
+  emissive framing and a small local warm light so doors remain visible in dark
+  corridors.
+- Restored seeded room furniture: eight table/chair or filing-cabinet groups
+  are placed in sufficiently large rooms. `BR.info().furniture` exposes the
+  generated count.
+- Fixed HUD room count (`layout.rooms` is an array, not a Set); the HUD now
+  reports the actual room total instead of `rooms undefined`.
+
 Reference: youtube.com/watch?v=ucJSZLxFQv8, first minute, measured with ffmpeg
 (signalstats per-frame + per-band audio) and vision analysis of a 12-frame montage.
 Measured profile: warm cast (V +7), soft contrast, no 60 Hz audio line, flat

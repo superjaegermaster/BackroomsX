@@ -61,7 +61,7 @@ function buildLevel(s, emergeNearCell) {
   layout = new LevelLayout(s);
   world = new World(scene, layout);
   seed = s;
-  hud.setInfo(seed, layout.rooms.size, layout.doors.length, world.zones.size);
+  hud.setInfo(seed, layout.rooms.length, layout.doors.length, world.zones.size);
   signNodes.forEach((n) => n && n.src.stop());
   signNodes = [];
   placeNeonFn = () => {
@@ -281,7 +281,8 @@ tick();
 // owner/QA debug handle (also used by the browser test probes)
 window.BR = {
   info: () => ({ fxOn, seed, doors: world.doors.length,
-    rooms: layout.rooms.size, zones: world.zones.size, posters: world.posterCount || 0,
+    rooms: layout.rooms.length, zones: world.zones.size, posters: world.posterCount || 0,
+    furniture: world.furnitureCount || 0,
     pos: [+player.pos.x.toFixed(2), +player.pos.y.toFixed(2), +player.pos.z.toFixed(2)],
     open: world.doors.filter((d) => d.open).length,
     blockedDoorCells: world.doors.filter((d) => world.blocked.has(d.cellKey)).length,

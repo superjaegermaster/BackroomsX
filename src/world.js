@@ -26,6 +26,7 @@ export class World {
     this._buildLights();
     this._buildDoors();
     this._buildPosters();
+    this._buildFurniture();
     this._buildExit();
     this._buildDust();
   }
@@ -105,7 +106,10 @@ export class World {
       m.matrixAutoUpdate = false;
       this.group.add(m);
     };
-    build(split.wall, wallTexture());
+    // Wall surfaces are modeled as solid box segments rather than single-sided
+    // planes. This restores visible wall thickness and prevents the triangular
+    // paper-thin look at oblique camera angles.
+    this._buildWallBoxes();
     build(split.floor, carpetTexture());
     build(split.ceil, ceilingTexture());
     void g; void setSub;
@@ -114,6 +118,25 @@ export class World {
     for (let cy = 0; cy < L.maze.height; cy++) for (let cx = 0; cx < L.maze.width; cx++)
       if (L.isSolid(cx, cy)) this.blocked.add(cx + "," + cy);
     void W; void Ht;
+  }
+
+  _buildWallBoxes() {
+    const L = this.layout, C = CELL, H = WALL_H;
+    const mat = new THREE.MeshStandardMaterial({ map: wallTexture(), roughness: 0.95, metalness: 0.01 });
+    const thickness = 0.22;
+    const add = (x, z, sx, sz) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(sx, H, sz), mat);
+      m.position.set(x, H / 2, z);
+      this.group.add(m);
+    };
+    for (let cy = 0; cy < L.maze.height; cy++) for (let cx = 0; cx < L.maze.width; cx++) {
+      if (!L.isSolid(cx, cy)) continue;
+      const x = (cx + 0.5) * C, z = (cy + 0.5) * C;
+      if (!L.isSolid(cx + 1, cy)) add((cx + 1) * C, z, thickness, C + thickness);
+      if (!L.isSolid(cx - 1, cy)) add(cx * C, z, thickness, C + thickness);
+      if (!L.isSolid(cx, cy + 1)) add(x, (cy + 1) * C, C + thickness, thickness);
+      if (!L.isSolid(cx, cy - 1)) add(x, cy * C, C + thickness, thickness);
+    }
   }
 
   // ---------- lights ----------
@@ -200,11 +223,13 @@ export class World {
   }
   _buildDoors() {
     const L = this.layout, C = CELL;
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x8a7a4a, roughness: 0.9 });
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: 0xb29b5f, emissive: 0x241a08, emissiveIntensity: 0.45, roughness: 0.82 });
     const leafH = 2.9;
     const texCache = {};
     for (const d of L.doors) {
       const style = this._zoneStyle(d.c.x, d.c.y);
+      const leafTex = texCache[style] ??= doorTexture(style);
       const cell = { x: d.c.x + d.n.x, y: d.c.y + d.n.y }; // room-side doorway cell
       const cx = (d.c.x + 0.5 + d.n.x * 0.5) * C, cz = (d.c.y + 0.5 + d.n.y * 0.5) * C;
       const horiz = d.n.y !== 0; // door plane runs along X if normal is Z
@@ -220,23 +245,33 @@ export class World {
       jambL.position.set(-1.95, (leafH + 0.16) / 2, 0); frame.add(jambL);
       const jambR = jambL.clone(); jambR.position.x = 1.95; frame.add(jambR);
       const backing = new THREE.Mesh(new THREE.PlaneGeometry(4.0, WALL_H),
-        new THREE.MeshStandardMaterial({ color: 0x6b5c34, roughness: 1, side: THREE.DoubleSide }));
+        new THREE.MeshStandardMaterial({
+          map: leafTex, color: 0xffffff, emissive: 0x7a4b12, emissiveIntensity: 0.72,
+          roughness: 0.94, side: THREE.DoubleSide }));
       backing.position.set(0, WALL_H / 2, 0.0);
       frame.add(backing);
       this.group.add(frame);
+      const doorLight = new THREE.PointLight(0xffc86b, 0.85, 7, 2);
+      doorLight.position.set(cx, 1.8, cz);
+      this.group.add(doorLight);
       // hinge at left jamb, leaf swings toward corridor
       const hinge = new THREE.Group();
       hinge.position.set(cx - 1.9, 0, cz);
-      if (!horiz) hinge.position.set(cx, 0, cz - 1.9);
+      if (!horiz) hinge.position.set(cx, 0, cz + 1.9);
+      // Pull the leaf a few centimetres toward the corridor so it cannot
+      // z-fight with the full-height backing plane.
+      hinge.position.x -= d.n.x * 0.08;
+      hinge.position.z -= d.n.y * 0.08;
       hinge.rotation.y = horiz ? 0 : -Math.PI / 2;
-      const leafTex = texCache[style] ??= doorTexture(style);
+      const leafMat = new THREE.MeshStandardMaterial({
+        map: leafTex, emissive: 0xff9b32, emissiveIntensity: 0.52, roughness: 0.8 });
       const leaf = new THREE.Mesh(new THREE.BoxGeometry(3.8, leafH, 0.1),
-        [new THREE.MeshStandardMaterial({ map: leafTex, roughness: 0.8 }),
+        [leafMat,
          new THREE.MeshStandardMaterial({ color: 0x55492c, roughness: 1 }),
          new THREE.MeshStandardMaterial({ color: 0x443a22, roughness: 1 }),
          new THREE.MeshStandardMaterial({ color: 0x55492c, roughness: 1 }),
          new THREE.MeshStandardMaterial({ color: 0x3c3420, roughness: 1 }),
-         new THREE.MeshStandardMaterial({ map: leafTex, roughness: 0.9 })]);
+         leafMat]);
       leaf.position.set(1.9, leafH / 2, 0);
       hinge.add(leaf);
       this.group.add(hinge);
@@ -264,6 +299,45 @@ export class World {
       d.angle += (d.target - d.angle) * k;
       d.hinge.rotation.y = (d.horiz ? 0 : -Math.PI / 2) + d.angle;
     }
+  }
+
+  // ---------- furniture ----------
+  _buildFurniture() {
+    const L = this.layout, C = CELL;
+    const wood = new THREE.MeshStandardMaterial({ color: 0x5c4326, roughness: 0.88 });
+    const darkWood = new THREE.MeshStandardMaterial({ color: 0x302517, roughness: 0.92 });
+    const metal = new THREE.MeshStandardMaterial({ color: 0x77705b, roughness: 0.78, metalness: 0.3 });
+    const box = (sx, sy, sz, x, y, z, material) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
+      m.position.set(x, y, z); this.group.add(m); return m;
+    };
+    const rooms = (L.roomRects ?? []).filter((r) => (r.x2 - r.x) >= 5 && (r.y2 - r.y) >= 5);
+    const rng = makeRng(L.seed * 811 + 19);
+    let count = 0;
+    for (const r of rooms) {
+      if (count >= 8 || rng.randf() < 0.28) continue;
+      const cx = ((r.x + r.x2) * 0.5) * C, cz = ((r.y + r.y2) * 0.5) * C;
+      if (count % 2 === 0) {
+        // A quiet office table with four legs and two chairs.
+        box(1.9, 0.14, 0.9, cx, 1.12, cz, wood);
+        for (const [dx, dz] of [[-0.72, -0.29], [0.72, -0.29], [-0.72, 0.29], [0.72, 0.29]])
+          box(0.10, 1.08, 0.10, cx + dx, 0.54, cz + dz, darkWood);
+        for (const dz of [-0.95, 0.95]) {
+          box(0.58, 0.10, 0.52, cx, 0.58, cz + dz, metal);
+          box(0.52, 0.72, 0.08, cx, 0.94, cz + dz + (dz > 0 ? 0.20 : -0.20), darkWood);
+        }
+      } else {
+        // A low filing cabinet / shelf: strong silhouette in the haze.
+        box(1.45, 1.65, 0.48, cx, 0.83, cz, darkWood);
+        for (const y of [0.43, 0.83, 1.23]) {
+          box(1.20, 0.025, 0.02, cx, y, cz - 0.25, metal);
+          box(0.12, 0.035, 0.035, cx, y + 0.02, cz - 0.30, metal);
+        }
+        box(1.60, 0.08, 0.62, cx, 1.68, cz, wood);
+      }
+      count++;
+    }
+    this.furnitureCount = count;
   }
 
   // ---------- exit ----------
