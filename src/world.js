@@ -128,8 +128,9 @@ export class World {
   _buildWallBoxes() {
     const L = this.layout, C = CELL, H = WALL_H;
     const wt = wallTexture();
-    const mat = new THREE.MeshStandardMaterial({
-      map: wt, bumpMap: wt, bumpScale: 0.025, roughness: 0.95, metalness: 0.01 });
+    // Wallpaper is intentionally unlit: no dirt-like shadow blobs or bump
+    // shading, just the clean repeated wall print requested by the owner.
+    const mat = new THREE.MeshBasicMaterial({ map: wt });
     const thickness = 0.22;
     const add = (x, z, sx, sz) => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(sx, H, sz), mat);
